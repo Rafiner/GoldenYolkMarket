@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - Golden Yolk Market</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-egg"></i>
+                    <span>Golden Yolk</span>
+                </a>
+                
+                <div class="nav-actions">
+                    <a href="index.html" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Continue Shopping
+                    </a>
+                    
+                    <!-- Auth Elements -->
+                    <div class="auth-element">
+                        <a href="login.html" class="btn btn-primary">Login</a>
+                    </div>
+                    
+                    <!-- User Elements -->
+                    <div class="user-element" style="display: none;">
+                        <a href="dashboard.html" class="btn btn-outline">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cart Section -->
+    <section class="cart-section">
+        <div class="container">
+            <div class="cart-header">
+                <h1>
+                    <i class="fas fa-shopping-cart"></i>
+                    Your Shopping Cart
+                </h1>
+            </div>
+
+            <div id="cartAlert" class="alert" style="display: none;">
+                <i class="fas fa-info-circle"></i>
+                <span id="cartMessage"></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                <!-- Cart Items -->
+                <div>
+                    <div id="cartItems">
+                        <div class="card">
+                            <div class="loading-spinner">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading your cart...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Summary -->
+                <div>
+                    <div class="card">
+                        <h3 style="margin-bottom: 1.5rem;">Order Summary</h3>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: between; margin-bottom: 0.5rem;">
+                                <span>Subtotal (<span id="itemCount">0</span> items)</span>
+                                <span>₱<span id="cartSubtotal">0.00</span></span>
+                            </div>
+                            <div style="display: flex; justify-content: between; margin-bottom: 0.5rem;">
+                                <span>Shipping Fee</span>
+                                <span>₱<span id="cartShipping">0.00</span></span>
+                            </div>
+                            <div style="display: flex; justify-content: between; font-weight: bold; font-size: 1.1rem; padding-top: 0.5rem; border-top: 1px solid #e5e7eb;">
+                                <span>Total</span>
+                                <span>₱<span id="cartTotal">0.00</span></span>
+                            </div>
+                        </div>
+
+                        <button id="checkoutBtn" class="btn btn-primary btn-large" style="width: 100%;" disabled>
+                            <i class="fas fa-credit-card"></i>
+                            Proceed to Checkout
+                        </button>
+
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--primary-light); border-radius: 0.5rem;">
+                            <p style="margin: 0; font-size: 0.9rem;">
+                                <i class="fas fa-truck"></i>
+                                <strong>Free shipping</strong> on orders over ₱500
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="js/firebase/config.js"></script>
+    <script src="js/auth/auth.js"></script>
+    <script src="js/products/products.js"></script>
+    <script src="js/products/cart.js"></script>
+    <script src="js/utils/helpers.js"></script>
+</body>
+</html>

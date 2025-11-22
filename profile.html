@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Golden Yolk Market</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <a href="index.html" class="logo" style="color: white; text-decoration: none;">
+                <i class="fas fa-egg"></i>
+                <span>Golden Yolk</span>
+            </a>
+            
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="orders.html"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
+                <li><a href="profile.html" class="active"><i class="fas fa-user"></i> Profile</a></li>
+                <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>My Profile</h1>
+                <p>Manage your account information</p>
+            </div>
+
+            <div class="card">
+                <div id="profileAlert" class="alert" style="display: none;">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="profileMessage"></span>
+                </div>
+
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" id="firstName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" id="lastName" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" class="form-input" disabled>
+                        <small style="color: var(--gray);">Email cannot be changed</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" id="phone" class="form-input" placeholder="Enter your phone number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea id="address" class="form-textarea" placeholder="Enter your full address" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" id="city" class="form-input" placeholder="Enter your city">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode" class="form-label">ZIP Code</label>
+                            <input type="text" id="zipCode" class="form-input" placeholder="Enter ZIP code">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Update Profile
+                    </button>
+                </form>
+            </div>
+
+            <!-- Change Password Section -->
+            <div class="card">
+                <h3>Change Password</h3>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" id="currentPassword" class="form-input" placeholder="Enter current password">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" id="newPassword" class="form-input" placeholder="Enter new password">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" id="confirmNewPassword" class="form-input" placeholder="Confirm new password">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="fas fa-key"></i>
+                        Change Password
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script src="js/firebase/config.js"></script>
+    <script src="js/auth/auth.js"></script>
+    <script src="js/user/profile.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            if (!authManager.getCurrentUser()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Logout handler
+            document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+                e.preventDefault();
+                const result = await authManager.signOut();
+                if (result.success) {
+                    window.location.href = 'index.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

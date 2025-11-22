@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Golden Yolk Market</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <a href="index.html" class="logo" style="color: white; text-decoration: none;">
+                <i class="fas fa-egg"></i>
+                <span>Golden Yolk</span>
+            </a>
+            
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="orders.html"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
+                <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+                <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1>Order Details</h1>
+                        <p id="orderNumber">Loading order information...</p>
+                    </div>
+                    <a href="orders.html" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Orders
+                    </a>
+                </div>
+            </div>
+
+            <div id="orderDetails">
+                <div class="card">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading order details...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="js/firebase/config.js"></script>
+    <script src="js/auth/auth.js"></script>
+    <script src="js/utils/helpers.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            if (!authManager.getCurrentUser()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Get order ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+            
+            if (!orderId) {
+                document.getElementById('orderDetails').innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>No order ID provided</span>
+                    </div>
+                `;
+                return;
+            }
+
+            // Load order details
+            loadOrderDetails(orderId);
+            
+            // Logout handler
+            document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+                e.preventDefault();
+                const result = await authManager.signOut();
+                if (result.success) {
+                    window.location.href = 'index.html';
+                }
+            });
+        });
+
+        async function loadOrderDetails(orderId) {
+            try {
+                const orderDoc = await firebaseDb.collection('orders').doc(orderId).get();
+                
+                if (!orderDoc.exists) {
+                    throw new Error('Order not found');
+                }
+
+                const order = orderDoc.data();
+                
+                // Verify the order belongs to the current user
+                if (order.userId !== authManager.getCurrentUser().uid) {
+                    throw new Error('Access denied');
+                }
+
+                // Update page title
+                document.getElementById('orderNumber').textContent = `Order #${orderId.slice(-8)}`;
+                
+                // Format order details
+                document.getElementById('orderDetails').innerHTML = `
+                    <div style="display: grid; gap: 2rem;">
+                        <!-- Order Summary -->
+                        <div class="card">
+                            <h2>Order Summary</h2>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <strong>Order Date:</strong><br>
+                                    ${order.createdAt?.toDate().toLocaleString() || 'N/A'}
+                                </div>
+                                <div>
+                                    <strong>Status:</strong><br>
+                                    <span class="status-badge status-${order.status}">${order.status}</span>
+                                </div>
+                                <div>
+                                    <strong>Payment Method:</strong><br>
+                                    ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}
+                                </div>
+                                <div>
+                                    <strong>Total Amount:</strong><br>
+                                    ₱${order.total?.toFixed(2) || '0.00'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="card">
+                            <h2>Order Items</h2>
+                            ${order.items.map(item => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <img src="${item.image || 'https://via.placeholder.com/60x60?text=No+Image'}" 
+                                             alt="${item.name}" 
+                                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.5rem;">
+                                        <div>
+                                            <div style="font-weight: 500;">${item.name}</div>
+                                            <div style="color: var(--gray); font-size: 0.9rem;">
+                                                ₱${item.price.toFixed(2)} × ${item.quantity}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="font-weight: bold;">
+                                        ₱${(item.price * item.quantity).toFixed(2)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                            
+                            <!-- Order Total -->
+                            <div style="padding: 1rem; background: #f8fafc; border-radius: 0.5rem; margin-top: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Subtotal:</span>
+                                    <span>₱${order.subtotal?.toFixed(2) || order.total.toFixed(2)}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Shipping Fee:</span>
+                                    <span>₱${order.shipping?.toFixed(2) || '0.00'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; padding-top: 0.5rem; border-top: 2px solid #e5e7eb;">
+                                    <span>Total:</span>
+                                    <span>₱${order.total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Actions -->
+                        ${order.status === 'pending' ? `
+                            <div class="card">
+                                <h2>Order Actions</h2>
+                                <button class="btn btn-danger" onclick="cancelOrder('${orderId}')">
+                                    <i class="fas fa-times"></i>
+                                    Cancel Order
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error loading order details:', error);
+                document.getElementById('orderDetails').innerHTML = `
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>${error.message}</span>
+                    </div>
+                `;
+            }
+        }
+
+        async function cancelOrder(orderId) {
+            if (!confirm('Are you sure you want to cancel this order?')) return;
+
+            try {
+                await firebaseDb.collection('orders').doc(orderId).update({
+                    status: 'cancelled',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                Helpers.showToast('Order cancelled successfully', 'success');
+                
+                // Reload the page to show updated status
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } catch (error) {
+                console.error('Error cancelling order:', error);
+                Helpers.showToast('Failed to cancel order', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

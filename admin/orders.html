@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders - Golden Yolk Market</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <a href="../index.html" class="logo" style="color: white; text-decoration: none;">
+                <i class="fas fa-egg"></i>
+                <span>Golden Yolk</span>
+            </a>
+            
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="products.html"><i class="fas fa-egg"></i> Products</a></li>
+                <li><a href="orders.html" class="active"><i class="fas fa-shopping-bag"></i> Orders</a></li>
+                <li><a href="users.html"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>Manage Orders</h1>
+                <p>View and manage customer orders</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <h3 style="margin: 0;">Order Management</h3>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <select id="statusFilter" class="form-select">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="packed">Packed</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <input type="date" id="dateFilter" class="form-input" style="width: auto;">
+                        <input type="text" id="searchOrders" class="form-input" placeholder="Search orders..." style="width: 200px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb;">Order ID</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb;">Customer</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb;">Items</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb;">Total</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb;">Status</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb;">Date</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid #e5e7eb;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTable">
+                            <tr>
+                                <td colspan="7" style="padding: 2rem; text-align: center;">
+                                    <div class="loading-spinner">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Loading orders...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 id="orderModalTitle">Order Details</h3>
+                <button class="modal-close" id="orderModalClose">&times;</button>
+            </div>
+            <div id="orderModalContent">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="../js/firebase/config.js"></script>
+    <script src="../js/auth/auth.js"></script>
+    <script src="../js/utils/helpers.js"></script>
+    <script src="../js/admin/admin-orders.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            await authManager.ready;
+            const user = authManager.getCurrentUser();
+            const isAdmin = await authManager.isAdmin();
+            if (!user || !isAdmin) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            // Logout handler
+            document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+                e.preventDefault();
+                const result = await authManager.signOut();
+                if (result.success) {
+                    window.location.href = '../index.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
